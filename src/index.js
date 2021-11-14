@@ -1,17 +1,131 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const App = () => {
+  const [value, setValue] = useState("flavor");
+  const [countries] = useState([
+    { id: "1", country: "Cambodia" },
+    { id: "2", country: "Australia" },
+    { id: "3", country: "US" }
+  ]);
+  const [courses, setCourses] = useState([]);
+  const [course, setCourse] = useState("");
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+  const handleSubmit = evt => {
+    alert("Your favorite flavor is: " + value);
+    evt.prevtDefault();
+  };
+
+  const handleSubmitCourse = evt => {
+    alert("Your selected value is: " + course);
+    evt.prevtDefault();
+  };
+
+  const handleChange = evt => {
+    setValue(evt.target.value);
+  };
+
+  const handleChangeCourse = evt => {
+    setCourse(evt.target.value);
+  };
+
+  const getUnique = (arr, comp) => {
+    const unique = arr
+      //store the comparison values in array
+      .map(e => e[comp])
+
+      // store the keys of the unique objects
+      .map((e, i, final) => final.indexOf(e) === i && i)
+
+      // eliminate the dead keys & store unique objects
+      .filter(e => arr[e])
+
+      .map(e => arr[e]);
+
+    return unique;
+  };
+
+  useEffect(() => {
+    const courses = require("./courses.json");
+    setCourses(courses);
+  }, []);
+
+  const countriesJson = require("./countries.json");
+
+  const uniqueCountry = getUnique(countriesJson.world, "country");
+
+  const uniqueCouse = getUnique(courses, "tag");
+
+  const filterDropdown = courses.filter( result => {
+    return result.tag === course;
+  });
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Pick your favorite flavor:
+          <select value={value} onChange={handleChange}>
+            <option value="flavor">Choose your flavor</option>
+            <option value="grapefruit">Grapefruit</option>
+            <option value="lime">Lime</option>
+            <option value="coconut">Coconut</option>
+            <option value="mango">Mango</option>
+          </select>
+        </label>
+        <input type="submit" value="Submit" />
+        <br />
+        <br />
+        <label>
+          Looping through Array
+          <select>
+            {countries.map(item => (
+              <option key={item.id} value={item.country}>
+                {item.country}
+              </option>
+            ))}
+            {console.log(countries)}
+          </select>
+        </label>
+        <br />
+        <br />
+        <label>
+          Looping through Json File
+          <select>
+            {uniqueCountry.map(item => (
+              <option key={item.id} value={item.country}>
+                {item.country}
+              </option>
+            ))}
+          </select>
+        </label>
+      </form>
+
+      <form onSubmit={handleSubmitCourse}>
+        <br />
+        <br />
+        <label>
+          Looping through Courses tag from Json File
+          <select value={course} onChange={handleChangeCourse}>
+            {uniqueCouse.map(course => (
+              <option key={course.id} value={course.tag}>
+                {course.tag}
+              </option>
+            ))}
+          </select>
+        </label>
+        <input type="submit" value="Submit" />
+        <div>
+          {filterDropdown.map(course => (
+            <div key={course.id} style={{ margin: "10px" }}>
+              {course.course}
+              <br />
+            </div>
+          ))}
+        </div>
+      </form>
+    </div>
+  );
+};
+
+ReactDOM.render(<App />, document.querySelector("#root"));
